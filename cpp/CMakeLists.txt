@@ -50,6 +50,9 @@ message("CUDAToolkit_INCLUDE_DIRS: " ${CUDAToolkit_INCLUDE_DIRS})
 message("CONDA_INCLUDE_DIRS: " ${CONDA_INCLUDE_DIRS})
 message("CUDF_CUDA_INCLUDE_DIR: " ${CUDF_CUDA_INCLUDE_DIR})
 
+message("CONDA_LIB_DIR: " ${CONDA_LINK_DIRS})
+message("CUDA_LIB_DIR: " ${CUDAToolkit_LIBRARY_DIR})
+
 include_directories(../cpp
         ${CUDF_CUDA_INCLUDE_DIR}
         ${CONDA_INCLUDE_DIRS}
