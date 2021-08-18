@@ -85,9 +85,9 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: ""
+          activate-environment: simple_cudf_dev
           environment-file: conda/envs/simple-cudf.yml
-          auto-activate-base: true
+          auto-activate-base: false
 
       - name: Print env variables
         run: conda --version && which python && echo "conda prefix $CONDA_PREFIX, conda $CONDA" && echo "CXX $CXX"
