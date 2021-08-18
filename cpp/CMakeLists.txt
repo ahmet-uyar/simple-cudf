@@ -56,7 +56,10 @@ include_directories(../cpp
         ${CUDAToolkit_INCLUDE_DIRS}
         )
 
-link_directories("${CONDA_LINK_DIRS}")
+link_directories(
+        "${CONDA_LINK_DIRS}"
+        "${CUDAToolkit_LIBRARY_DIR}"
+        )
 
 #build a binary with cuda
 macro(add_exe EXENAME)
