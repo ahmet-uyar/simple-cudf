@@ -54,14 +54,14 @@ message("CONDA_LIB_DIR: " ${CONDA_LINK_DIRS})
 message("CUDA_LIB_DIR: " ${CUDAToolkit_LIBRARY_DIR})
 
 include_directories(../cpp
+        ${CUDAToolkit_INCLUDE_DIRS}
         ${CUDF_CUDA_INCLUDE_DIR}
         ${CONDA_INCLUDE_DIRS}
-        ${CUDAToolkit_INCLUDE_DIRS}
         )
 
 link_directories(
-        "${CONDA_LINK_DIRS}"
         "${CUDAToolkit_LIBRARY_DIR}"
+        "${CONDA_LINK_DIRS}"
         )
 
 #build a binary with cuda
