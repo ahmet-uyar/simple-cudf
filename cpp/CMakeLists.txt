@@ -20,7 +20,13 @@ SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_CXX_EXTENSIONS OFF)
 SET(CMAKE_REQUIRED_FLAGS "-std=c++17")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-error=redundant-move -Wl,--allow-shlib-undefined")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-error=redundant-move")
+
+# If executed on github actions, set below flag to avoid linker error for cuda
+# ref: https://github.com/NVIDIA/nvidia-docker/issues/775
+if(DEFINED ENV{GITHUB_ACTIONS})
+    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
+endif()
 
 # find CUDA
 find_package(CUDAToolkit REQUIRED)
