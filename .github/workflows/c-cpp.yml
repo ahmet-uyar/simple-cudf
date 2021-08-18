@@ -23,7 +23,7 @@ jobs:
           # 20.04 supports CUDA 11.0+
           - os: ubuntu-20.04
             cuda: "11.2"
-            gcc: 10
+            gcc: 9
           # - os: ubuntu-20.04
           #   cuda: "11.2"
           #   gcc: 10
@@ -95,7 +95,7 @@ jobs:
         run: conda activate simple_cudf_dev
 
       - name: Print env variables
-        run: conda --version && which python && echo "conda prefix $CONDA_PREFIX, conda $CONDA" && echo "CXX $CXX"
+        run: conda --version && which python && echo "conda prefix $CONDA_PREFIX, conda $CONDA" && which nvcc
 
       - name: Build cpp project
         run: ./build.sh
