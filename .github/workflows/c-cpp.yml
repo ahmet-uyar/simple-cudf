@@ -12,6 +12,9 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       fail-fast: false
       # explicit include-based build matrix, of known valid options
@@ -87,7 +90,6 @@ jobs:
         with:
           activate-environment: simple_cudf_dev
           environment-file: conda/envs/simple-cudf.yml
-          auto-activate-base: false
 
       - name: activate conda
         run: conda activate simple_cudf_dev
