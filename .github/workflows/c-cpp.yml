@@ -89,8 +89,11 @@ jobs:
           environment-file: conda/envs/simple-cudf.yml
           auto-activate-base: false
 
+      - name: activate conda
+        run: conda activate simple_cudf_dev
+
       - name: Print env variables
         run: conda --version && which python && echo "conda prefix $CONDA_PREFIX, conda $CONDA" && echo "CXX $CXX"
 
       - name: Build cpp project
-        run: CONDA_PREFIX=$CONDA ./build.sh
+        run: CONDA_PREFIX=${CONDA}/simple_cudf_dev ./build.sh
