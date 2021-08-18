@@ -98,4 +98,4 @@ jobs:
         run: conda --version && which python && echo "conda prefix $CONDA_PREFIX, conda $CONDA" && echo "CXX $CXX"
 
       - name: Build cpp project
-        run: CONDA_PREFIX=${CONDA}/simple_cudf_dev ./build.sh
+        run: ./build.sh
