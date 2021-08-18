@@ -20,7 +20,7 @@ SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_CXX_EXTENSIONS OFF)
 SET(CMAKE_REQUIRED_FLAGS "-std=c++17")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-error=redundant-move")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-error=redundant-move -Wl,--allow-shlib-undefined")
 
 # find CUDA
 find_package(CUDAToolkit REQUIRED)
