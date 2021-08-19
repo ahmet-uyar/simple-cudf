@@ -22,21 +22,21 @@ SET(CMAKE_CXX_EXTENSIONS OFF)
 SET(CMAKE_REQUIRED_FLAGS "-std=c++17")
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-error=redundant-move")
 
-# If executed on github actions, set below flag to avoid linker error for cuda
-# ref: https://github.com/NVIDIA/nvidia-docker/issues/775
-if(DEFINED ENV{GITHUB_ACTIONS})
-#    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
-    set(CMAKE_CXX_FLAGS "-lcuda")
-endif()
-
 # find CUDA
 find_package(CUDAToolkit REQUIRED)
 
 set(CMAKE_CUDA_ARCHITECTURES 60 61 75)
 enable_language(CUDA)
 
+# If executed on github actions, set below flag to avoid linker error for cuda
+# ref: https://github.com/NVIDIA/nvidia-docker/issues/775
+if(DEFINED ENV{GITHUB_ACTIONS})
+    #    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
+    set(CMAKE_CXX_FLAGS "-Wl,-rpath-link=${CUDAToolkit_LIBRARY_DIR}/stubs")
+endif()
+
 # if conda build is used
-if("$ENV{CONDA_BUILD}" STREQUAL "1")
+if($ENV{CONDA_BUILD} STREQUAL "1")
     set(CMAKE_SYSTEM_PREFIX_PATH "$ENV{BUILD_PREFIX};$ENV{PREFIX};${CMAKE_SYSTEM_PREFIX_PATH}")
     set(CONDA_INCLUDE_DIRS "$ENV{BUILD_PREFIX}/include" "$ENV{PREFIX}/include")
     set(CONDA_LINK_DIRS "$ENV{BUILD_PREFIX}/lib" "$ENV{PREFIX}/lib")
@@ -49,7 +49,7 @@ elseif(DEFINED ENV{CONDA_PREFIX})
     set(CONDA_LINK_DIRS "$ENV{CONDA_PREFIX}/lib")
     set(CUDF_CUDA_INCLUDE_DIR "$ENV{CONDA_PREFIX}/include/libcudf/libcudacxx/")
     message(STATUS "Conda environment detected, CMAKE_SYSTEM_PREFIX_PATH set to: ${CMAKE_SYSTEM_PREFIX_PATH}")
-endif("$ENV{CONDA_BUILD}" STREQUAL "1")
+endif($ENV{CONDA_BUILD} STREQUAL "1")
 
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -67,8 +67,8 @@ include_directories(../cpp
         )
 
 link_directories(
-        "${CUDAToolkit_LIBRARY_DIR}"
-        "${CONDA_LINK_DIRS}"
+        ${CUDAToolkit_LIBRARY_DIR}
+        ${CONDA_LINK_DIRS}
         )
 
 #build a binary with cuda
