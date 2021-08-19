@@ -25,7 +25,8 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-error=redundant-move")
 # If executed on github actions, set below flag to avoid linker error for cuda
 # ref: https://github.com/NVIDIA/nvidia-docker/issues/775
 if(DEFINED ENV{GITHUB_ACTIONS})
-    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
+#    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
+    set(CMAKE_CXX_FLAGS "-lcuda")
 endif()
 
 # find CUDA
