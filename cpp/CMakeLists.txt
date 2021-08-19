@@ -31,8 +31,7 @@ enable_language(CUDA)
 # If executed on github actions, set below flag to avoid linker error for cuda
 # ref: https://github.com/NVIDIA/nvidia-docker/issues/775
 if(DEFINED ENV{GITHUB_ACTIONS})
-    #    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
-    set(CMAKE_CXX_FLAGS "-Wl,-rpath-link=${CUDAToolkit_LIBRARY_DIR}/stubs")
+    set(CMAKE_CXX_FLAGS "-Wl,--allow-shlib-undefined")
 endif()
 
 # if conda build is used
