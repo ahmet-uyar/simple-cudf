@@ -124,10 +124,15 @@ echo "APT_KEY_URL ${APT_KEY_URL}"
 ## -----------------
 echo "Adding CUDA Repository"
 wget ${PIN_URL}
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< downloaded PIN file: ${PIN_FILENAME}"
 sudo mv ${PIN_FILENAME} /etc/apt/preferences.d/cuda-repository-pin-600
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< moved PIN file: ${PIN_FILENAME}"
 sudo apt-key adv --fetch-keys ${APT_KEY_URL}
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< fetched apt-key from: ${APT_KEY_URL}"
 sudo add-apt-repository "deb ${REPO_URL} /"
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< added repo url : ${REPO_URL}"
 sudo apt-get update
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< updated apt-get:"
 
 echo "Installing CUDA packages ${CUDA_PACKAGES}"
 sudo apt-get -y install ${CUDA_PACKAGES}
