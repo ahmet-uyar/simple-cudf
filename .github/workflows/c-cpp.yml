@@ -53,11 +53,16 @@ jobs:
           echo "CXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
           echo "CUDAHOSTCXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
 
-      - name: Install CUDA
-        env:
-          cuda: ${{ matrix.cuda }}
-        run: ./.github/scripts/install_cuda_ubuntu.sh
-        shell: bash
+      - uses: Jimver/cuda-toolkit@v0.2.4
+        id: cuda-toolkit
+        with:
+          cuda: '11.2.2'
+
+#      - name: Install CUDA
+#        env:
+#          cuda: ${{ matrix.cuda }}
+#        run: ./.github/scripts/install_cuda_ubuntu.sh
+#        shell: bash
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
