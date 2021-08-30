@@ -45,12 +45,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install CUDA
-        env:
-          cuda: ${{ matrix.cuda }}
-        run: ./.github/scripts/install_cuda_ubuntu.sh
-        shell: bash
-
       # Specify the correct host compilers
       - name: Install/Select gcc and g++
         run: |
@@ -58,6 +52,12 @@ jobs:
           echo "CC=/usr/bin/gcc-${{ matrix.gcc }}" >> $GITHUB_ENV
           echo "CXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
           echo "CUDAHOSTCXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
+
+      - name: Install CUDA
+        env:
+          cuda: ${{ matrix.cuda }}
+        run: ./.github/scripts/install_cuda_ubuntu.sh
+        shell: bash
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
