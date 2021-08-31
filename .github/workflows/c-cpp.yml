@@ -58,6 +58,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda }}
 
+# this does not work currently, there is an error when installing cuda
 #      - name: Install CUDA
 #        env:
 #          cuda: ${{ matrix.cuda }}

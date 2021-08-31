@@ -77,3 +77,4 @@ macro(add_exe EXENAME)
 endmacro(add_exe)
 
 add_exe(read_table)
+add_exe(minmax)
