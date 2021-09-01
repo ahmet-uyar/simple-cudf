@@ -76,5 +76,12 @@ macro(add_exe EXENAME)
     target_link_libraries(${EXENAME} cudf CUDA::cudart)
 endmacro(add_exe)
 
+#build a binary with cuda
+macro(add_cuda_exe EXENAME)
+    add_executable(${EXENAME} ${EXENAME}.cu)
+    target_link_libraries(${EXENAME} CUDA::cudart)
+endmacro(add_cuda_exe)
+
 add_exe(read_table)
 add_exe(minmax)
+add_cuda_exe(rand)
