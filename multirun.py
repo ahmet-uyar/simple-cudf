@@ -78,13 +78,13 @@ def run_task_for_type(exe_file, task_type, num_tables):
 
 exefile = "build/bin/sorting"
 task_types = ["sort", "merge"]
-num_tables_all = [[1], [1, 2, 4, 8, 16, 32, 64, 128]]
+num_tables = [1, 2, 4, 8, 16, 32, 64, 128]
 
 # delete previous sing-run-result file if exist
 if os.path.exists(single_run_result_file):
     os.remove(single_run_result_file)
 
-for tsk_type, num_tables in zip(task_types, num_tables_all):
+for tsk_type in task_types:
     # remove results files if exist
     csv_file = tsk_type + "-" + results_csv_file
     if os.path.exists(csv_file):

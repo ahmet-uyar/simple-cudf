@@ -18,6 +18,7 @@
 #include <cudf/merge.hpp>
 #include <cudf/quantiles.hpp>
 #include <cudf/copying.hpp>
+#include <cudf/concatenate.hpp>
 #include <cuda.h>
 
 #include "construct.h"
@@ -69,48 +70,17 @@ std::string vectorToString(const std::vector<T> &vec) {
   return oss.str();
 }
 
-int testSorting(const int cols, const int64_t rows) {
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-
-  std::unique_ptr<cudf::table> tbl = constructRandomDataTable(cols, rows);
-  auto tv = tbl->view();
-  cout << "initial dataframe: cols: " << tv.num_columns() << ", rows: " << tv.num_rows() << endl;
-//  writeToFile(tv, "initial_table.csv");
-
-  cudaEventRecord(start);
-  std::unique_ptr<cudf::table> result_table = cudf::sort(tv);
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  float fdelay = 0;
-  cudaEventElapsedTime(&fdelay, start, stop);
-  int delay = (int)fdelay;
-
-  auto result_tv = result_table->view();
-
-  cout << "duration: "<<  delay << endl;
-//  writeToFile(result_tv, "sorted_table.csv");
-  cout << ", rows in sorted df: "<< result_tv.num_rows()  << endl;
-  return delay;
-}
-
-int testMerging(const int cols, const int64_t rows, int num_of_sorted_tables) {
-
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-
-  std::unique_ptr<cudf::table> tbl = constructRandomDataTable(cols, rows);
+std::vector<cudf::table_view> tableSlices(int cols, int64_t rows, int num_slices, std::unique_ptr<cudf::table> &tbl) {
+  tbl = constructRandomDataTable(cols, rows);
   auto input_tv = tbl->view();
-  cout << "initial dataframe................................. " << endl;
+  cout << "initial dataframe: cols: " << input_tv.num_columns() << ", rows: " << input_tv.num_rows() << endl;
 //  writeToFile(tv, "initial_table.csv");
 
   std::vector<cudf::size_type> slice_rows;
 
-  int64_t rows_per_table = rows / num_of_sorted_tables;
+  int64_t rows_per_table = rows / num_slices;
   int32_t row_start = 0;
-  for (int i = 0; i < num_of_sorted_tables - 1; ++i) {
+  for (int i = 0; i < num_slices - 1; ++i) {
     slice_rows.push_back(row_start);
     slice_rows.push_back(row_start + rows_per_table);
     row_start += rows_per_table;
@@ -123,7 +93,51 @@ int testMerging(const int cols, const int64_t rows, int num_of_sorted_tables) {
 
   auto init_tv_slices = cudf::slice(input_tv, slice_rows);
   cout << "number of sliced tables: " << init_tv_slices.size() << endl;
+  return init_tv_slices;
+}
 
+int testSorting(int cols, int64_t rows, int num_tables) {
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+
+  std::unique_ptr<cudf::table> tbl;
+  auto init_tv_slices = tableSlices(cols, rows, num_tables, tbl);
+
+  vector<unique_ptr<cudf::table>> separate_tables;
+  std::vector<cudf::table_view> separate_tviews;
+  for (auto tv_slice: init_tv_slices) {
+    unique_ptr<cudf::table> tbl = make_unique<cudf::table>(tv_slice);
+    separate_tviews.push_back(tbl->view());
+    separate_tables.push_back(move(tbl));
+  }
+
+  // concat and sort
+  cudaEventRecord(start);
+  auto single_tbl = cudf::concatenate(separate_tviews);
+  std::unique_ptr<cudf::table> result_table = cudf::sort(single_tbl->view());
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float fdelay = 0;
+  cudaEventElapsedTime(&fdelay, start, stop);
+  int delay = (int)fdelay;
+
+  auto result_tv = result_table->view();
+
+  cout << "duration: "<<  delay << endl;
+//  writeToFile(result_tv, "sorted_table.csv");
+  cout << "rows in sorted df: "<< result_tv.num_rows()  << endl;
+  return delay;
+}
+
+int testMerging(const int cols, const int64_t rows, int num_of_sorted_tables) {
+
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+
+  std::unique_ptr<cudf::table> tbl;
+  auto init_tv_slices = tableSlices(cols, rows, num_of_sorted_tables, tbl);
   vector<unique_ptr<cudf::table>> sorted_tables;
   vector<cudf::table_view> sorted_tvs;
   for (auto tv: init_tv_slices) {
@@ -167,29 +181,21 @@ string OUT_FILE = "single_run.csv";
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 4) {
-    cout << "required three params (sort/merge/quantiles dataSize num_of_columns): sorting 1GB 2, \n"
+  if (argc < 5) {
+    cout << "required three params (sort/merge dataSize num_columns num_tables): sorting 1GB 2 4, \n"
                << "dataSize in MB or GB: 100MB, 2GB, etc." << endl;
     return 1;
   }
 
   std::string op_type = argv[1];
-  if(op_type != "sort" && op_type != "merge" && op_type != "quantiles") {
-    cout << "first parameter can be either 'sort' or 'merg' or 'quantiles'" << endl;
-    return 1;
-  }
-
-  if (op_type == "merge" && argc < 5){
-    cout << "with merge, an extra parameter needed: merge dataSize num_of_columns num_of_tables: sorting 1GB 2 10" << endl;
+  if(op_type != "sort" && op_type != "merge") {
+    cout << "first parameter can be either 'sort' or 'merge'" << endl;
     return 1;
   }
 
   std::string dataSize = argv[2];
   int cols = stoi(argv[3]);
-
-  int num_of_tables = -1;
-  if (op_type == "merge")
-    num_of_tables = stoi(argv[4]);
+  int num_of_tables = stoi(argv[4]);
 
   int number_of_GPUs;
   cudaGetDeviceCount(&number_of_GPUs);
@@ -206,7 +212,7 @@ int main(int argc, char *argv[]) {
 
   int delay = -1;
   if(op_type == "sort")
-    delay = testSorting(cols, rows);
+    delay = testSorting(cols, rows, num_of_tables);
   else if(op_type == "merge")
     delay = testMerging(cols, rows, num_of_tables);
 //  else if(op_type == "quantiles")
